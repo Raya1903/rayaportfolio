@@ -1,0 +1,115 @@
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Github } from "lucide-react";
+import project1 from "@/assets/project1.jpg";
+import project2 from "@/assets/project2.jpg";
+import project3 from "@/assets/project3.jpg";
+
+const Projects = () => {
+  const projects = [
+    {
+      title: "E-Commerce Platform",
+      description: "A full-stack e-commerce solution with cart management, payment integration, and admin dashboard. Built with React, Node.js, and MongoDB.",
+      image: project1,
+      tags: ["React", "Node.js", "MongoDB", "Stripe"],
+      github: "https://github.com",
+      demo: "https://demo.com",
+    },
+    {
+      title: "Task Management App",
+      description: "Collaborative task management tool with real-time updates, drag-and-drop interface, and team features. Uses Firebase for backend.",
+      image: project2,
+      tags: ["React", "TypeScript", "Firebase", "Tailwind"],
+      github: "https://github.com",
+      demo: "https://demo.com",
+    },
+    {
+      title: "Weather Dashboard",
+      description: "Beautiful weather application with location-based forecasts, interactive maps, and detailed weather metrics. Integrated with OpenWeather API.",
+      image: project3,
+      tags: ["Next.js", "API Integration", "Charts"],
+      github: "https://github.com",
+      demo: "https://demo.com",
+    },
+  ];
+
+  return (
+    <section id="projects" className="py-20 bg-background">
+      <div className="container px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center font-['Space_Grotesk']">
+            Featured <span className="bg-gradient-primary bg-clip-text text-transparent">Projects</span>
+          </h2>
+          
+          <p className="text-lg text-muted-foreground text-center mb-12">
+            Some of my recent work
+          </p>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project, index) => (
+              <Card 
+                key={index}
+                className="overflow-hidden bg-card border-border hover:border-primary transition-all duration-300 hover:shadow-card group"
+              >
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={project.image} 
+                    alt={project.title}
+                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60" />
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                    {project.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    {project.description}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.tags.map((tag, tagIndex) => (
+                      <span 
+                        key={tagIndex}
+                        className="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="secondary"
+                      className="flex-1"
+                      asChild
+                    >
+                      <a href={project.github} target="_blank" rel="noopener noreferrer">
+                        <Github className="w-4 h-4 mr-2" />
+                        Code
+                      </a>
+                    </Button>
+                    <Button 
+                      size="sm"
+                      className="flex-1 bg-gradient-primary hover:shadow-glow"
+                      asChild
+                    >
+                      <a href={project.demo} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Demo
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Projects;
