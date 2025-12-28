@@ -13,7 +13,7 @@ const Projects = () => {
       image: project1,
       tags: ["Java", "Java Swing", "Encryption", "Security Design"],
       github: "https://github.com/Raya1903/cybersecurity-encryption-system",
-      demo: null,
+      demo: "/cybersecurity-demo",
     },
     {
       title: "Calculator Application",
@@ -99,7 +99,7 @@ const Projects = () => {
                         className="flex-1 bg-gradient-primary hover:shadow-glow"
                         asChild
                       >
-                        <a href={project.demo} target="_blank" rel="noopener noreferrer">
+                        <a href={project.demo}>
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Demo
                         </a>
