@@ -1,44 +1,128 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User, X, Plus, ThumbsUp, Volume2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const movies = {
+type Movie = {
+  id: number;
+  title: string;
+  image: string;
+  year?: string;
+  rating?: string;
+  duration?: string;
+  description?: string;
+  genres?: string[];
+};
+
+const movies: { trending: Movie[]; popular: Movie[]; newReleases: Movie[] } = {
   trending: [
-    { id: 1, title: "Stranger Things", image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300&h=450&fit=crop" },
-    { id: 2, title: "The Crown", image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop" },
-    { id: 3, title: "Dark", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&h=450&fit=crop" },
-    { id: 4, title: "Money Heist", image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=300&h=450&fit=crop" },
-    { id: 5, title: "Breaking Bad", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop" },
-    { id: 6, title: "Narcos", image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=300&h=450&fit=crop" },
+    { id: 1, title: "Stranger Things", image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300&h=450&fit=crop", year: "2016", rating: "TV-14", duration: "4 Seasons", description: "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.", genres: ["Sci-Fi", "Horror", "Drama"] },
+    { id: 2, title: "The Crown", image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop", year: "2016", rating: "TV-MA", duration: "6 Seasons", description: "This drama follows the political rivalries and romance of Queen Elizabeth II's reign and the events that shaped the second half of the twentieth century.", genres: ["Drama", "History", "Biography"] },
+    { id: 3, title: "Dark", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&h=450&fit=crop", year: "2017", rating: "TV-MA", duration: "3 Seasons", description: "A family saga with a supernatural twist, set in a German town where the disappearance of two young children exposes the relationships among four families.", genres: ["Sci-Fi", "Thriller", "Mystery"] },
+    { id: 4, title: "Money Heist", image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=300&h=450&fit=crop", year: "2017", rating: "TV-MA", duration: "5 Seasons", description: "Eight thieves take hostages and lock themselves in the Royal Mint of Spain as a criminal mastermind manipulates the police to carry out his plan.", genres: ["Action", "Crime", "Thriller"] },
+    { id: 5, title: "Breaking Bad", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop", year: "2008", rating: "TV-MA", duration: "5 Seasons", description: "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine to secure his family's future.", genres: ["Crime", "Drama", "Thriller"] },
+    { id: 6, title: "Narcos", image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=300&h=450&fit=crop", year: "2015", rating: "TV-MA", duration: "3 Seasons", description: "A chronicled look at the criminal exploits of Colombian drug lord Pablo Escobar, as well as the many other drug kingpins who plagued the country.", genres: ["Biography", "Crime", "Drama"] },
   ],
   popular: [
-    { id: 7, title: "The Witcher", image: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=300&h=450&fit=crop" },
-    { id: 8, title: "Ozark", image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300&h=450&fit=crop" },
-    { id: 9, title: "Peaky Blinders", image: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=300&h=450&fit=crop" },
-    { id: 10, title: "Black Mirror", image: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=300&h=450&fit=crop" },
-    { id: 11, title: "Mindhunter", image: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=300&h=450&fit=crop" },
-    { id: 12, title: "You", image: "https://images.unsplash.com/photo-1512070679279-8988d32161be?w=300&h=450&fit=crop" },
+    { id: 7, title: "The Witcher", image: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=300&h=450&fit=crop", year: "2019", rating: "TV-MA", duration: "3 Seasons", description: "Geralt of Rivia, a solitary monster hunter, struggles to find his place in a world where people often prove more wicked than beasts.", genres: ["Action", "Adventure", "Fantasy"] },
+    { id: 8, title: "Ozark", image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300&h=450&fit=crop", year: "2017", rating: "TV-MA", duration: "4 Seasons", description: "A financial advisor drags his family from Chicago to the Missouri Ozarks, where he must launder money to appease a drug boss.", genres: ["Crime", "Drama", "Thriller"] },
+    { id: 9, title: "Peaky Blinders", image: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=300&h=450&fit=crop", year: "2013", rating: "TV-MA", duration: "6 Seasons", description: "A gangster family epic set in 1900s England, centering on a gang who sew razor blades in the peaks of their caps.", genres: ["Crime", "Drama"] },
+    { id: 10, title: "Black Mirror", image: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=300&h=450&fit=crop", year: "2011", rating: "TV-MA", duration: "6 Seasons", description: "An anthology series exploring a twisted, high-tech multiverse where humanity's greatest innovations and darkest instincts collide.", genres: ["Drama", "Sci-Fi", "Thriller"] },
+    { id: 11, title: "Mindhunter", image: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=300&h=450&fit=crop", year: "2017", rating: "TV-MA", duration: "2 Seasons", description: "In the late 1970s, two FBI agents expand criminal science by delving into the psychology of murder and getting dangerously close to all-too-real monsters.", genres: ["Crime", "Drama", "Thriller"] },
+    { id: 12, title: "You", image: "https://images.unsplash.com/photo-1512070679279-8988d32161be?w=300&h=450&fit=crop", year: "2018", rating: "TV-MA", duration: "4 Seasons", description: "A dangerously charming, intensely obsessive young man goes to extreme measures to insert himself into the lives of those he is transfixed by.", genres: ["Crime", "Drama", "Romance"] },
   ],
   newReleases: [
-    { id: 13, title: "Wednesday", image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&h=450&fit=crop" },
-    { id: 14, title: "The Sandman", image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&h=450&fit=crop" },
-    { id: 15, title: "Dahmer", image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=300&h=450&fit=crop" },
-    { id: 16, title: "Cobra Kai", image: "https://images.unsplash.com/photo-1555992336-03a23c7b20ee?w=300&h=450&fit=crop" },
-    { id: 17, title: "Squid Game", image: "https://images.unsplash.com/photo-1611419010234-b5f9d3d6a3f5?w=300&h=450&fit=crop" },
-    { id: 18, title: "All of Us Are Dead", image: "https://images.unsplash.com/photo-1559583985-c80d8ad9b29f?w=300&h=450&fit=crop" },
+    { id: 13, title: "Wednesday", image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&h=450&fit=crop", year: "2022", rating: "TV-14", duration: "1 Season", description: "Follows Wednesday Addams' years as a student at Nevermore Academy, where she attempts to master her emerging psychic ability.", genres: ["Comedy", "Crime", "Fantasy"] },
+    { id: 14, title: "The Sandman", image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&h=450&fit=crop", year: "2022", rating: "TV-MA", duration: "1 Season", description: "A wizard attempting to capture Death to bargain for eternal life traps her younger brother Dream instead.", genres: ["Drama", "Fantasy", "Horror"] },
+    { id: 15, title: "Dahmer", image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=300&h=450&fit=crop", year: "2022", rating: "TV-MA", duration: "Limited Series", description: "The story of serial killer Jeffrey Dahmer, exploring how he evaded capture for over a decade.", genres: ["Biography", "Crime", "Drama"] },
+    { id: 16, title: "Cobra Kai", image: "https://images.unsplash.com/photo-1555992336-03a23c7b20ee?w=300&h=450&fit=crop", year: "2018", rating: "TV-14", duration: "6 Seasons", description: "Decades after their 1984 All Valley Karate Tournament bout, Johnny Lawrence and Daniel LaRusso find themselves martial arts rivals again.", genres: ["Action", "Comedy", "Drama"] },
+    { id: 17, title: "Squid Game", image: "https://images.unsplash.com/photo-1611419010234-b5f9d3d6a3f5?w=300&h=450&fit=crop", year: "2021", rating: "TV-MA", duration: "1 Season", description: "Hundreds of cash-strapped players accept a strange invitation to compete in children's games for a tempting prize, but the stakes are deadly.", genres: ["Action", "Drama", "Mystery"] },
+    { id: 18, title: "All of Us Are Dead", image: "https://images.unsplash.com/photo-1559583985-c80d8ad9b29f?w=300&h=450&fit=crop", year: "2022", rating: "TV-MA", duration: "1 Season", description: "A high school becomes ground zero for a zombie virus outbreak. Trapped students must fight their way out or turn into one of the rabid infected.", genres: ["Action", "Drama", "Horror"] },
   ],
 };
 
-const MovieRow = ({ title, movies: rowMovies }: { title: string; movies: typeof movies.trending }) => {
-  const [scrollPosition, setScrollPosition] = useState(0);
+const allMovies = [...movies.trending, ...movies.popular, ...movies.newReleases];
 
+const MovieModal = ({ movie, open, onClose }: { movie: Movie | null; open: boolean; onClose: () => void }) => {
+  if (!movie) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl p-0 bg-[#181818] border-none overflow-hidden">
+        <div className="relative">
+          <div
+            className="h-[400px] bg-cover bg-center"
+            style={{ backgroundImage: `url('${movie.image.replace("w=300&h=450", "w=800&h=450")}')` }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[#181818] via-transparent to-transparent" />
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#181818] flex items-center justify-center hover:bg-[#282828] transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <h2 className="text-4xl font-bold mb-4">{movie.title}</h2>
+            <div className="flex gap-3 mb-4">
+              <Button className="bg-white text-black hover:bg-white/90 px-8">
+                <Play className="w-5 h-5 mr-2 fill-current" />
+                Play
+              </Button>
+              <button className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center hover:border-white transition">
+                <Plus className="w-5 h-5" />
+              </button>
+              <button className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center hover:border-white transition">
+                <ThumbsUp className="w-5 h-5" />
+              </button>
+              <button className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center hover:border-white transition ml-auto">
+                <Volume2 className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-8 pt-4">
+          <div className="flex gap-4 text-sm mb-4">
+            <span className="text-green-500 font-semibold">98% Match</span>
+            <span className="text-gray-400">{movie.year}</span>
+            <span className="border border-gray-400 px-1 text-xs">{movie.rating}</span>
+            <span className="text-gray-400">{movie.duration}</span>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-2">
+              <p className="text-gray-200 leading-relaxed">{movie.description}</p>
+            </div>
+            <div className="text-sm">
+              <p className="text-gray-400 mb-2">
+                <span className="text-gray-500">Genres: </span>
+                {movie.genres?.join(", ")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const MovieRow = ({ 
+  title, 
+  movies: rowMovies, 
+  onMovieClick 
+}: { 
+  title: string; 
+  movies: Movie[];
+  onMovieClick: (movie: Movie) => void;
+}) => {
   const scroll = (direction: "left" | "right") => {
     const container = document.getElementById(`row-${title.replace(/\s/g, "")}`);
     if (container) {
       const scrollAmount = direction === "left" ? -300 : 300;
       container.scrollBy({ left: scrollAmount, behavior: "smooth" });
-      setScrollPosition(container.scrollLeft + scrollAmount);
     }
   };
 
@@ -60,6 +144,7 @@ const MovieRow = ({ title, movies: rowMovies }: { title: string; movies: typeof 
           {rowMovies.map((movie) => (
             <div
               key={movie.id}
+              onClick={() => onMovieClick(movie)}
               className="flex-shrink-0 w-[200px] cursor-pointer transition-transform duration-300 hover:scale-110 hover:z-10"
             >
               <img
@@ -83,6 +168,8 @@ const MovieRow = ({ title, movies: rowMovies }: { title: string; movies: typeof 
 };
 
 const NetflixDemo = () => {
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+
   return (
     <div className="min-h-screen bg-[#141414] text-white">
       {/* Navigation */}
@@ -133,7 +220,11 @@ const NetflixDemo = () => {
               <Play className="w-6 h-6 mr-2 fill-current" />
               Play
             </Button>
-            <Button variant="secondary" className="bg-gray-500/70 hover:bg-gray-500/50 text-white text-lg px-8 py-6">
+            <Button 
+              variant="secondary" 
+              className="bg-gray-500/70 hover:bg-gray-500/50 text-white text-lg px-8 py-6"
+              onClick={() => setSelectedMovie(movies.trending[1])}
+            >
               <Info className="w-6 h-6 mr-2" />
               More Info
             </Button>
@@ -143,10 +234,17 @@ const NetflixDemo = () => {
 
       {/* Movie Rows */}
       <div className="pb-16">
-        <MovieRow title="Trending Now" movies={movies.trending} />
-        <MovieRow title="Popular on Streamflix" movies={movies.popular} />
-        <MovieRow title="New Releases" movies={movies.newReleases} />
+        <MovieRow title="Trending Now" movies={movies.trending} onMovieClick={setSelectedMovie} />
+        <MovieRow title="Popular on Streamflix" movies={movies.popular} onMovieClick={setSelectedMovie} />
+        <MovieRow title="New Releases" movies={movies.newReleases} onMovieClick={setSelectedMovie} />
       </div>
+
+      {/* Movie Detail Modal */}
+      <MovieModal 
+        movie={selectedMovie} 
+        open={!!selectedMovie} 
+        onClose={() => setSelectedMovie(null)} 
+      />
 
       {/* Footer */}
       <footer className="bg-[#141414] border-t border-gray-800 py-8 px-12">
