@@ -62,7 +62,7 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/2abc6bb2-2acd-424c-8278-cd508e4c1cb7) and click on Share -> Publish.
+Simply open [Lovable](https://playflix.dev/projects/2abc6bb2-2acd-424c-8278-cd508e4c1cb7) and click on Share -> Publish.
 
 ## Can I connect a custom domain to my Lovable project?
 
