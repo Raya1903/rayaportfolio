@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User, X, Plus, ThumbsUp, Volume2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -41,8 +42,6 @@ const movies: { trending: Movie[]; popular: Movie[]; newReleases: Movie[] } = {
     { id: 18, title: "All of Us Are Dead", image: "https://images.unsplash.com/photo-1559583985-c80d8ad9b29f?w=300&h=450&fit=crop", year: "2022", rating: "TV-MA", duration: "1 Season", description: "A high school becomes ground zero for a zombie virus outbreak. Trapped students must fight their way out or turn into one of the rabid infected.", genres: ["Action", "Drama", "Horror"] },
   ],
 };
-
-const allMovies = [...movies.trending, ...movies.popular, ...movies.newReleases];
 
 const MovieModal = ({ movie, open, onClose }: { movie: Movie | null; open: boolean; onClose: () => void }) => {
   if (!movie) return null;
@@ -169,6 +168,23 @@ const MovieRow = ({
 
 const NetflixDemo = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const allMovies = [...movies.trending, ...movies.popular, ...movies.newReleases];
+  
+  const filteredMovies = searchQuery.trim()
+    ? allMovies.filter(movie => 
+        movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
 
   return (
     <div className="min-h-screen bg-[#141414] text-white">
@@ -188,7 +204,39 @@ const NetflixDemo = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Search className="w-5 h-5 cursor-pointer hover:text-gray-300" />
+            <div className="relative flex items-center">
+              <div className={`flex items-center transition-all duration-300 ${searchOpen ? 'bg-black/90 border border-white' : ''}`}>
+                <button
+                  onClick={() => {
+                    setSearchOpen(!searchOpen);
+                    if (searchOpen) {
+                      setSearchQuery("");
+                    }
+                  }}
+                  className="p-2 hover:text-gray-300"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+                {searchOpen && (
+                  <Input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Titles, people, genres"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-[200px] md:w-[250px] bg-transparent border-none text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                )}
+                {searchOpen && searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="p-2 hover:text-gray-300"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
             <Bell className="w-5 h-5 cursor-pointer hover:text-gray-300" />
             <div className="w-8 h-8 bg-[#E50914] rounded flex items-center justify-center">
               <User className="w-5 h-5" />
@@ -197,47 +245,81 @@ const NetflixDemo = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="relative h-[85vh] mb-8">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1920&h=1080&fit=crop')`,
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
-        </div>
-        
-        <div className="relative z-10 flex flex-col justify-center h-full px-12 max-w-2xl">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4">The Crown</h1>
-          <p className="text-lg text-gray-200 mb-6 line-clamp-3">
-            This drama follows the political rivalries and romance of Queen Elizabeth II's reign 
-            and the events that shaped the second half of the twentieth century.
-          </p>
-          <div className="flex gap-4">
-            <Button className="bg-white text-black hover:bg-white/90 text-lg px-8 py-6">
-              <Play className="w-6 h-6 mr-2 fill-current" />
-              Play
-            </Button>
-            <Button 
-              variant="secondary" 
-              className="bg-gray-500/70 hover:bg-gray-500/50 text-white text-lg px-8 py-6"
-              onClick={() => setSelectedMovie(movies.trending[1])}
-            >
-              <Info className="w-6 h-6 mr-2" />
-              More Info
-            </Button>
-          </div>
-        </div>
-      </div>
 
-      {/* Movie Rows */}
-      <div className="pb-16">
-        <MovieRow title="Trending Now" movies={movies.trending} onMovieClick={setSelectedMovie} />
-        <MovieRow title="Popular on Streamflix" movies={movies.popular} onMovieClick={setSelectedMovie} />
-        <MovieRow title="New Releases" movies={movies.newReleases} onMovieClick={setSelectedMovie} />
-      </div>
+      {/* Search Results */}
+      {searchQuery.trim() && (
+        <div className="pt-24 pb-16 px-12">
+          <h2 className="text-2xl font-semibold mb-6">
+            Search results for "{searchQuery}"
+          </h2>
+          {filteredMovies.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {filteredMovies.map((movie) => (
+                <div
+                  key={movie.id}
+                  onClick={() => setSelectedMovie(movie)}
+                  className="cursor-pointer transition-transform duration-300 hover:scale-105"
+                >
+                  <img
+                    src={movie.image}
+                    alt={movie.title}
+                    className="w-full h-[250px] object-cover rounded"
+                  />
+                  <p className="mt-2 text-sm text-center truncate">{movie.title}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No results found for "{searchQuery}"</p>
+          )}
+        </div>
+      )}
+
+      {/* Movie Rows - Hidden when searching */}
+      {!searchQuery.trim() && (
+        <>
+          {/* Hero Section */}
+          <div className="relative h-[85vh] mb-8">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1920&h=1080&fit=crop')`,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
+            </div>
+            
+            <div className="relative z-10 flex flex-col justify-center h-full px-12 max-w-2xl">
+              <h1 className="text-5xl md:text-7xl font-bold mb-4">The Crown</h1>
+              <p className="text-lg text-gray-200 mb-6 line-clamp-3">
+                This drama follows the political rivalries and romance of Queen Elizabeth II's reign 
+                and the events that shaped the second half of the twentieth century.
+              </p>
+              <div className="flex gap-4">
+                <Button className="bg-white text-black hover:bg-white/90 text-lg px-8 py-6">
+                  <Play className="w-6 h-6 mr-2 fill-current" />
+                  Play
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  className="bg-gray-500/70 hover:bg-gray-500/50 text-white text-lg px-8 py-6"
+                  onClick={() => setSelectedMovie(movies.trending[1])}
+                >
+                  <Info className="w-6 h-6 mr-2" />
+                  More Info
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="pb-16">
+            <MovieRow title="Trending Now" movies={movies.trending} onMovieClick={setSelectedMovie} />
+            <MovieRow title="Popular on Streamflix" movies={movies.popular} onMovieClick={setSelectedMovie} />
+            <MovieRow title="New Releases" movies={movies.newReleases} onMovieClick={setSelectedMovie} />
+          </div>
+        </>
+      )}
 
       {/* Movie Detail Modal */}
       <MovieModal 
