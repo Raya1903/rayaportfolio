@@ -1,33 +1,34 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Play, Info, ChevronLeft, ChevronRight, Search, Bell, User, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
+const allMovies = [
+  { id: 1, title: "Stranger Things", image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300&h=450&fit=crop", category: "trending" },
+  { id: 2, title: "The Crown", image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop", category: "trending" },
+  { id: 3, title: "Dark", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&h=450&fit=crop", category: "trending" },
+  { id: 4, title: "Money Heist", image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=300&h=450&fit=crop", category: "trending" },
+  { id: 5, title: "Breaking Bad", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop", category: "trending" },
+  { id: 6, title: "Narcos", image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=300&h=450&fit=crop", category: "trending" },
+  { id: 7, title: "The Witcher", image: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=300&h=450&fit=crop", category: "popular" },
+  { id: 8, title: "Ozark", image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300&h=450&fit=crop", category: "popular" },
+  { id: 9, title: "Peaky Blinders", image: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=300&h=450&fit=crop", category: "popular" },
+  { id: 10, title: "Black Mirror", image: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=300&h=450&fit=crop", category: "popular" },
+  { id: 11, title: "Mindhunter", image: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=300&h=450&fit=crop", category: "popular" },
+  { id: 12, title: "You", image: "https://images.unsplash.com/photo-1512070679279-8988d32161be?w=300&h=450&fit=crop", category: "popular" },
+  { id: 13, title: "Wednesday", image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&h=450&fit=crop", category: "newReleases" },
+  { id: 14, title: "The Sandman", image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&h=450&fit=crop", category: "newReleases" },
+  { id: 15, title: "Dahmer", image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=300&h=450&fit=crop", category: "newReleases" },
+  { id: 16, title: "Cobra Kai", image: "https://images.unsplash.com/photo-1555992336-03a23c7b20ee?w=300&h=450&fit=crop", category: "newReleases" },
+  { id: 17, title: "Squid Game", image: "https://images.unsplash.com/photo-1611419010234-b5f9d3d6a3f5?w=300&h=450&fit=crop", category: "newReleases" },
+  { id: 18, title: "All of Us Are Dead", image: "https://images.unsplash.com/photo-1559583985-c80d8ad9b29f?w=300&h=450&fit=crop", category: "newReleases" },
+];
+
 const movies = {
-  trending: [
-    { id: 1, title: "Stranger Things", image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300&h=450&fit=crop" },
-    { id: 2, title: "The Crown", image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=450&fit=crop" },
-    { id: 3, title: "Dark", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&h=450&fit=crop" },
-    { id: 4, title: "Money Heist", image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=300&h=450&fit=crop" },
-    { id: 5, title: "Breaking Bad", image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop" },
-    { id: 6, title: "Narcos", image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=300&h=450&fit=crop" },
-  ],
-  popular: [
-    { id: 7, title: "The Witcher", image: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=300&h=450&fit=crop" },
-    { id: 8, title: "Ozark", image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300&h=450&fit=crop" },
-    { id: 9, title: "Peaky Blinders", image: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=300&h=450&fit=crop" },
-    { id: 10, title: "Black Mirror", image: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=300&h=450&fit=crop" },
-    { id: 11, title: "Mindhunter", image: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=300&h=450&fit=crop" },
-    { id: 12, title: "You", image: "https://images.unsplash.com/photo-1512070679279-8988d32161be?w=300&h=450&fit=crop" },
-  ],
-  newReleases: [
-    { id: 13, title: "Wednesday", image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&h=450&fit=crop" },
-    { id: 14, title: "The Sandman", image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&h=450&fit=crop" },
-    { id: 15, title: "Dahmer", image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=300&h=450&fit=crop" },
-    { id: 16, title: "Cobra Kai", image: "https://images.unsplash.com/photo-1555992336-03a23c7b20ee?w=300&h=450&fit=crop" },
-    { id: 17, title: "Squid Game", image: "https://images.unsplash.com/photo-1611419010234-b5f9d3d6a3f5?w=300&h=450&fit=crop" },
-    { id: 18, title: "All of Us Are Dead", image: "https://images.unsplash.com/photo-1559583985-c80d8ad9b29f?w=300&h=450&fit=crop" },
-  ],
+  trending: allMovies.filter(m => m.category === "trending"),
+  popular: allMovies.filter(m => m.category === "popular"),
+  newReleases: allMovies.filter(m => m.category === "newReleases"),
 };
 
 const MovieRow = ({ title, movies: rowMovies }: { title: string; movies: typeof movies.trending }) => {
@@ -83,6 +84,16 @@ const MovieRow = ({ title, movies: rowMovies }: { title: string; movies: typeof 
 };
 
 const NetflixDemo = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return allMovies.filter(movie =>
+      movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
   return (
     <div className="min-h-screen bg-[#141414] text-white">
       {/* Navigation */}
@@ -101,7 +112,32 @@ const NetflixDemo = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Search className="w-5 h-5 cursor-pointer hover:text-gray-300" />
+            <div className="relative flex items-center">
+              {isSearchOpen ? (
+                <div className="flex items-center bg-black/80 border border-white/30 rounded">
+                  <Search className="w-5 h-5 ml-2 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Titles, people, genres"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-48 bg-transparent border-none text-white placeholder:text-gray-400 focus-visible:ring-0"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }}
+                    className="p-2 hover:text-gray-300"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <Search
+                  className="w-5 h-5 cursor-pointer hover:text-gray-300"
+                  onClick={() => setIsSearchOpen(true)}
+                />
+              )}
+            </div>
             <Bell className="w-5 h-5 cursor-pointer hover:text-gray-300" />
             <div className="w-8 h-8 bg-[#E50914] rounded flex items-center justify-center">
               <User className="w-5 h-5" />
@@ -141,11 +177,40 @@ const NetflixDemo = () => {
         </div>
       </div>
 
-      {/* Movie Rows */}
+      {/* Movie Rows or Search Results */}
       <div className="pb-16">
-        <MovieRow title="Trending Now" movies={movies.trending} />
-        <MovieRow title="Popular on Streamflix" movies={movies.popular} />
-        <MovieRow title="New Releases" movies={movies.newReleases} />
+        {searchQuery.trim() ? (
+          <div className="px-12">
+            <h2 className="text-xl font-semibold mb-4">
+              Search Results for "{searchQuery}" ({searchResults.length} found)
+            </h2>
+            {searchResults.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {searchResults.map((movie) => (
+                  <div
+                    key={movie.id}
+                    className="cursor-pointer transition-transform duration-300 hover:scale-105"
+                  >
+                    <img
+                      src={movie.image}
+                      alt={movie.title}
+                      className="w-full h-[250px] object-cover rounded"
+                    />
+                    <p className="mt-2 text-sm text-center truncate">{movie.title}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400">No movies found matching your search.</p>
+            )}
+          </div>
+        ) : (
+          <>
+            <MovieRow title="Trending Now" movies={movies.trending} />
+            <MovieRow title="Popular on Streamflix" movies={movies.popular} />
+            <MovieRow title="New Releases" movies={movies.newReleases} />
+          </>
+        )}
       </div>
 
       {/* Footer */}
